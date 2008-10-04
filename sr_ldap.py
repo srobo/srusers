@@ -40,6 +40,7 @@ def bind():
             return False
 
         bound = True
+        return True
 
 def get_conn():
     global conn
