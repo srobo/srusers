@@ -37,7 +37,7 @@ def bind():
             conn.simple_bind_s( info[0], info[1] )
         except ldap.INVALID_CREDENTIALS:
             print "Incorrect password"
-            sys.exit(1)
+            return False
 
         bound = True
 
