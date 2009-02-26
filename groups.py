@@ -63,10 +63,19 @@ class group:
         elif type(userl) is not types.ListType:
             userl = [userl]
         
+        failed = []
         for user in userl:
+            # Check the user's real
+            u = users.user(user)
+            if not u.in_db:
+                failed.append(user)
+                continue
+
             if user not in self.members:
                 self.members.append( user )
                 self.new_users.append( user )
+
+        return failed
 
     def user_rm(self,userl):
         """Remove a user from a group"""
