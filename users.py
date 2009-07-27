@@ -33,7 +33,8 @@ class user:
           "username" : "uid",
           "id" : "uidNumber",
           "email" : "mail",
-          "home" : "homeDirectory" }
+          "home" : "homeDirectory",
+            "loginShell" : "loginShell" }
 
     required_props = [ "cn", "sn", "uid", "uidNumber", "mail",
                        "homeDirectory", "objectClass",
@@ -55,7 +56,8 @@ class user:
                            "uidNumber" : str(self.__get_new_uidNumber()),
                            "gidNumber" : "1999",
                            "homeDirectory" : "/home/%s" % ( username ),
-                           "userPassword" : encode_pass( self.init_passwd )
+                           "userPassword" : encode_pass( self.init_passwd ),
+                           "loginShell" : "/bin/bash"
                            }
             self.dn = "uid=%s,ou=users,o=sr" % (username)
 
