@@ -1,7 +1,7 @@
 import ldap, types
 import sr_ldap
 import string
-import random, sha, base64
+import random, hashlib, base64
 from sr_ldap import get_conn
 
 def GenPasswd():
@@ -12,8 +12,8 @@ def GenPasswd():
     return newpasswd
 
 def encode_pass(p):
-    psha = sha.new(p)
-    return "{SHA}%s" %( base64.b64encode( psha.digest() ) )
+    h = hashlib.sha1(p)
+    return "{SHA}%s" %( base64.b64encode( h.digest() ) )
 
 def list():
     sr_ldap.bind()
