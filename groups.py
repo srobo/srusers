@@ -15,6 +15,16 @@ def list():
 
     return groups
 
+def uname_from_dn(dn):
+    "Extract a username from a dn"
+    s = dn.split(",")[0]
+
+    return s[len("uid="):]
+
+def uname_to_dn(uname):
+    "Return the user's dn"
+    return "uid=%s,ou=users,o=sr" % uname
+
 class group:
     """A group of users"""
 
@@ -30,6 +40,13 @@ class group:
 
         #List of removed users
         self.removed_users = []
+
+
+        # Some groups require full user dn's in the memberUid field
+        self.full_user_dn = False
+
+        if self.name == "shell-users":
+            self.full_user_dn = True
 
         if not self.__load(name):
             #Have to create new
@@ -49,7 +66,7 @@ class group:
             self.dn = info[0][0]
             self.gid = info[0][1]["gidNumber"]
             if "memberUid" in info[0][1].keys():
-                self.members = info[0][1]["memberUid"]
+                self.members = self.__unames_from_dn( info[0][1]["memberUid"] )
             else:
                 self.members = []
             return True
@@ -111,7 +128,7 @@ class group:
                     ("gidNumber", str(self.gid)) ]
 
         if len(self.members) > 0:
-            modlist.append( ("memberUid", self.members) )
+            modlist.append( ("memberUid", self.__unames_to_dn( self.members ) ) )
 
         get_conn().add_s( self.dn, modlist )
 
@@ -126,7 +143,7 @@ class group:
 
         modlist = [ ( ldap.MOD_REPLACE,
                       "memberUid",
-                      self.members ) ]
+                      self.__unames_to_dn( self.members ) ) ]
 
         get_conn().modify_s( self.dn, modlist )
 
@@ -160,5 +177,13 @@ class group:
         desc = desc + ", ".join( self.members )
 
         return desc
-            
 
+    def __unames_from_dn(self, l):
+        if self.full_user_dn:
+            return [uname_from_dn(x) for x in l]
+        return l
+
+    def __unames_to_dn(self, l):
+        if self.full_user_dn:
+            return [uname_from_dn(x) for x in l]
+        return l
