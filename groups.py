@@ -185,5 +185,5 @@ class group:
 
     def __unames_to_dn(self, l):
         if self.full_user_dn:
-            return [uname_from_dn(x) for x in l]
+            return [uname_to_dn(x) for x in l]
         return l
