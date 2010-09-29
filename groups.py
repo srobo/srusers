@@ -41,7 +41,6 @@ class group:
         #List of removed users
         self.removed_users = []
 
-
         # Some groups require full user dn's in the memberUid field
         self.full_user_dn = False
 
@@ -54,6 +53,7 @@ class group:
             self.in_db = False
             self.members = []
             self.dn = "cn=%s,ou=groups,o=sr" % (name)
+            self.desc = "%s group" % name
         else:
             self.in_db = True
 
@@ -65,6 +65,10 @@ class group:
         if len(info) == 1:
             self.dn = info[0][0]
             self.gid = info[0][1]["gidNumber"]
+
+            if info[0][1].has_key("description"):
+                self.desc = info[0][1]["description"][0]
+
             if "memberUid" in info[0][1].keys():
                 self.members = self.__unames_from_dn( info[0][1]["memberUid"] )
             else:
@@ -125,7 +129,8 @@ class group:
     def __save_new(self):
         modlist = [ ("objectClass", "posixGroup"),
                     ("cn", self.name),
-                    ("gidNumber", str(self.gid)) ]
+                    ("gidNumber", str(self.gid)),
+                    ("description", self.desc) ]
 
         if len(self.members) > 0:
             modlist.append( ("memberUid", self.__unames_to_dn( self.members ) ) )
@@ -143,7 +148,10 @@ class group:
 
         modlist = [ ( ldap.MOD_REPLACE,
                       "memberUid",
-                      self.__unames_to_dn( self.members ) ) ]
+                      self.__unames_to_dn( self.members ) ),
+                    ( ldap.MOD_REPLACE,
+                      "description",
+                      self.desc ) ]
 
         get_conn().modify_s( self.dn, modlist )
 
