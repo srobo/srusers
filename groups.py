@@ -4,12 +4,16 @@ from sr_ldap import get_conn
 import users
 
 # Get a list of all groups
-def list():
+def list(name_filter = None):
     sr_ldap.bind()
+
+    filterstr = "(objectClass=posixGroup)"
+    if name_filter != None:
+        filterstr = "(&%s(cn=%s))" % (filterstr, name_filter)
 
     g_res = get_conn().search_st( "ou=groups,o=sr",
                                   ldap.SCOPE_ONELEVEL,
-                                  filterstr="(objectClass=posixGroup)" )
+                                  filterstr=filterstr )
 
     groups = [x[1]["cn"][0] for x in g_res]
 
