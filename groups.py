@@ -85,22 +85,27 @@ class group:
 
     def user_add(self,userl):
         """Add a user to the group"""
-        if userl.__class__ is users.user:
+        if isinstance(userl, users.user):
             userl = [userl.username]
         elif type(userl) is not types.ListType:
             userl = [userl]
-        
+
         failed = []
         for user in userl:
             # Check the user's real
-            u = users.user(user)
+
+            if isinstance(user, users.user):
+                u = user
+            else:
+                u = users.user(user)
+
             if not u.in_db:
                 failed.append(user)
                 continue
 
-            if user not in self.members:
-                self.members.append( user )
-                self.new_users.append( user )
+            if u.username not in self.members:
+                self.members.append( u.username )
+                self.new_users.append( u.username )
 
         return failed
 
