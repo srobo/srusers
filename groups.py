@@ -72,6 +72,8 @@ class group:
 
             if info[0][1].has_key("description"):
                 self.desc = info[0][1]["description"][0]
+            else:
+                self.desc = None
 
             if "memberUid" in info[0][1].keys():
                 self.members = self.__unames_from_dn( info[0][1]["memberUid"] )
