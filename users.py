@@ -3,6 +3,7 @@ import sr_ldap
 import string
 import random, hashlib, base64, re
 from sr_ldap import get_conn
+import groups
 
 def GenPasswd():
     chars = string.letters + string.digits
@@ -215,9 +216,9 @@ class user:
                                 filterstr=filter,
                                 attrlist=["cn"] )
 
-        groups = [x[1]["cn"][0] for x in res]
+        lgroups = [x[1]["cn"][0] for x in res]
 
-        return groups
+        return lgroups
     
     def bind(self,p):
         if self.in_db:
@@ -256,3 +257,21 @@ class user:
             m = re.match( "^lang-(.+)$", group )
             if m != None:
                 return m.groups()[0]
+
+    def set_lang(self, lang):
+        "Set the language of the user"
+
+        # Remove ourself from any language group we're already in
+        g = self.groups()
+        for group in g:
+            m = re.match( "^lang-(.+)$", group )
+            if m != None:
+                gi = groups.group(group)
+
+                gi.user_rm( self )
+                gi.save()
+
+        g = groups.group( "lang-%s" % lang )
+        assert g.in_db
+        g.user_add( self )
+        g.save()
