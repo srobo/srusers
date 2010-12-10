@@ -112,7 +112,7 @@ class group:
     def user_rm(self,userl):
         """Remove a user from a group"""
         if userl.__class__ is users.user:
-            userl = [user.username]
+            userl = [userl.username]
         elif type(userl) is not types.ListType:
             userl = [userl]
             
