@@ -1,7 +1,7 @@
 import ldap, types
 import sr_ldap
 import string
-import random, hashlib, base64
+import random, hashlib, base64, re
 from sr_ldap import get_conn
 
 def GenPasswd():
@@ -245,6 +245,14 @@ class user:
         else:
             get_conn().passwd_s( self.dn, old, new )
             return True
-        
-        
-    
+
+    def get_lang(self):
+        "Return the language of the user"
+        if not self.in_db:
+            raise Exception( "Cannot discover language of user who's not in the DB" )
+
+        g = self.groups()
+        for group in g:
+            m = re.match( "^lang-(.+)$", group )
+            if m != None:
+                return m.groups()[0]
