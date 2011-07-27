@@ -11,7 +11,7 @@ if conn == None:
     connect()
 
 def default_pass():
-    sys.stderr.write("Password:")
+    sys.stderr.write("LDAP Password:")
     return ("cn=Manager,o=sr",getpass.getpass(""))
 
 user_callback = default_pass
