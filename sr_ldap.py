@@ -1,18 +1,26 @@
 import ldap, sys, getpass
+from ConfigParser import NoOptionError
+from config import config
 
 conn = None
 bound = False
 
 def connect():
     global conn
-    conn = ldap.initialize("ldap://127.0.0.1/")
+    conn_str = "ldap://%s/" % config.get('ldap', 'host')
+    conn = ldap.initialize(conn_str)
 
 if conn == None:
     connect()
 
 def default_pass():
-    sys.stderr.write("LDAP Password:")
-    return ("cn=Manager,o=sr",getpass.getpass(""))
+    try:
+        passwd = config.get('ldap', 'password')
+    except NoOptionError:
+        sys.stderr.write("LDAP Password:")
+        passwd = getpass.getpass("")
+    conn_str = "cn=%s,o=sr" % config.get('ldap', 'username')
+    return (conn_str, passwd)
 
 user_callback = default_pass
 
