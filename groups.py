@@ -68,7 +68,7 @@ class group:
         
         if len(info) == 1:
             self.dn = info[0][0]
-            self.gid = info[0][1]["gidNumber"]
+            self.gid = int( info[0][1]["gidNumber"][0] )
 
             if info[0][1].has_key("description"):
                 self.desc = info[0][1]["description"][0]
