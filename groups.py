@@ -1,7 +1,7 @@
 import ldap, types
 import sr_ldap
 from sr_ldap import get_conn
-import users
+import users, grp
 
 # Get a list of all groups
 def list(name_filter = None):
@@ -180,9 +180,19 @@ class group:
         for gid in [int(x[1]["gidNumber"][0]) for x in groups]:
             gids.append(gid)
 
-        gid = 3000
-        while gid in gids:
+        gid = 2999
+        while True:
             gid += 1
+
+            if gid in gids:
+                "An ldap group with that gid already exists"
+                continue
+
+            try:
+                grp.getgrgid(gid)
+            except KeyError:
+                "The group isn't in the local stuff either"
+                break
 
         return gid
             
