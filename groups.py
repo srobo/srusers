@@ -154,15 +154,15 @@ class group:
         return True
 
     def __update(self):
-        if len(self.new_users) == 0 and len(self.removed_users) == 0:
-            return True
-
         modlist = [ ( ldap.MOD_REPLACE,
                       "memberUid",
                       self.__unames_to_dn( self.members ) ),
                     ( ldap.MOD_REPLACE,
                       "description",
-                      self.desc ) ]
+                      self.desc ),
+                    ( ldap.MOD_REPLACE,
+                      "gidNumber",
+                      str(self.gid) ) ]
 
         get_conn().modify_s( self.dn, modlist )
 
