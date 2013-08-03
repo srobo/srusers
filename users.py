@@ -81,7 +81,7 @@ class user:
             return True
         else:
             return False
-        
+
 
     def __get_new_uidNumber( self ):
         """Finds the next available UID"""
@@ -205,10 +205,10 @@ class user:
             desc = desc + "%s: %s" % (human, pval)
 
         return desc
-    
+
     def groups(self):
         """Returns a list of the groups the user is in"""
-        
+
         filter =  "(&(objectClass=posixGroup)(memberUid=%s))" % ( self.username )
 
         res = get_conn().search_st( "ou=groups,o=sr",
@@ -219,11 +219,11 @@ class user:
         lgroups = [x[1]["cn"][0] for x in res]
 
         return lgroups
-    
+
     def bind(self,p):
         if self.in_db:
             sr_ldap.unbind()
-            
+
             try:
                 get_conn().bind_s( self.dn, p )
             except ldap.INVALID_CREDENTIALS, ldap.LDAPError:

@@ -15,4 +15,3 @@ def _read_config():
 
 if config is None:
     _read_config()
-

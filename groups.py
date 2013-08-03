@@ -65,7 +65,7 @@ class group:
         info = get_conn().search_st( "ou=groups,o=sr",
                                  ldap.SCOPE_ONELEVEL,
                                  filterstr="(&(objectClass=posixGroup)(cn=%s))" % ( name ) )
-        
+
         if len(info) == 1:
             self.dn = info[0][0]
             self.gid = int( info[0][1]["gidNumber"][0] )
@@ -115,7 +115,7 @@ class group:
             userl = [userl.username]
         elif type(userl) is not types.ListType:
             userl = [userl]
-            
+
         for user in userl:
             if user in self.members:
                 self.members.remove(user)
@@ -129,7 +129,7 @@ class group:
             get_conn().delete_s( self.dn )
             self.in_db = False
             return True
-    
+
     def save(self):
         """Save the group"""
         if self.in_db:
@@ -168,7 +168,7 @@ class group:
 
         self.new_users = []
         self.removed_users = []
-        
+
     def __get_new_gidNumber( self ):
         """Finds the next available GID"""
         groups = get_conn().search_st( "ou=groups,o=sr",
@@ -195,7 +195,7 @@ class group:
                 break
 
         return gid
-            
+
     def __str__(self):
         desc = ""
 
