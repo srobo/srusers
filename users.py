@@ -114,8 +114,7 @@ class user:
             self.__dict__[name] = val
 
     def save(self):
-        if not self.__check():
-            raise Exception("Cannot save - missing setting")
+        self.__check()
 
         if self.in_db:
             return self.__update()
@@ -155,12 +154,19 @@ class user:
         self.changed_props = []
         return True
 
+    def __missing_props(self):
+        """Get a collection of the properties that are missing from this user"""
+        required = set(self.required_props)
+        actual = set(self.props.keys())
+        missing = required - actual
+        return missing
+
     def __check(self):
         """Check that all the required properties are set"""
-        for req in self.required_props:
-            if req not in self.props.keys():
-                return False
-        return True
+        missing = self.__missing_props()
+        if len(missing) != 0:
+            missing_str = "', '".join(missing)
+            raise Exception( "Cannot save user '%s' - missing settings: '%s'." % (self.username, missing_str) )
 
     def __getattr__(self, name):
         if name in self.map.keys():
