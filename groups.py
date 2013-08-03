@@ -124,7 +124,7 @@ class group:
     def rm(self):
         """Delete the group"""
         if not self.in_db:
-            raise "Cannot delete group - doesn't exist"
+            raise Exception("Cannot delete group '%s' - doesn't exist in database" % (self.name))
         else:
             get_conn().delete_s( self.dn )
             self.in_db = False

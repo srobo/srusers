@@ -115,7 +115,7 @@ class user:
 
     def save(self):
         if not self.__check():
-            raise "Cannot save - missing setting"
+            raise Exception("Cannot save - missing setting")
 
         if self.in_db:
             return self.__update()
@@ -126,7 +126,7 @@ class user:
         """Deletes the user with the specified username"""
 
         if not self.in_db:
-            raise "Cannot delete user - doesn't exist in database"
+            raise Exception("Cannot delete user '%s' - doesn't exist in database" % (self.username))
         else:
             get_conn().delete_s( self.dn )
             self.in_db = False
