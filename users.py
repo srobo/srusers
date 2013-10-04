@@ -70,6 +70,29 @@ class user:
                        "homeDirectory", "objectClass",
                        "gidNumber" ]
 
+    @classmethod
+    def search(cls, **kwargs):
+        parts = []
+        for common, prop in cls.map.iteritems():
+            if common in kwargs:
+                parts.append("({0}={1})".format(prop, kwargs[common]))
+
+        if len(parts) == 0:
+            return None
+
+        parts = ["(objectClass=inetOrgPerson)"] + parts
+        sr_ldap.bind()
+
+        filter_str = "(&{0})".format("".join(parts))
+
+        result = get_conn().search_st("ou=users,o=sr",
+                                      ldap.SCOPE_ONELEVEL,
+                                      filterstr = filter_str,
+                                      attrlist = ["uid"])
+
+        userids = [item[1]['uid'][0] for item in result]
+        return userids
+
     def __init__( self, username ):
         """Initialise the user object"""
         sr_ldap.bind()
