@@ -48,11 +48,11 @@ def new_username(college_id, first_name, last_name, tmpset = []):
         return "%s%i" % (prefix, i)
 
     n = 1
-    u = user( c(n) )
+    u = user( c(n), match_case = False )
 
     while u.in_db or u.username in tmpset:
         n += 1
-        u = user( c(n) )
+        u = user( c(n), match_case = False )
 
     return u.username
 
@@ -93,13 +93,13 @@ class user:
         userids = [item[1]['uid'][0] for item in result]
         return userids
 
-    def __init__( self, username ):
+    def __init__( self, username, match_case = False ):
         """Initialise the user object"""
         sr_ldap.bind()
 
         self.changed_props = []
 
-        if not self.__load( username ):
+        if not self.__load( username, match_case ):
             uidNumber = self.__get_new_uidNumber()
 
             self.init_passwd = GenPasswd()
@@ -122,10 +122,12 @@ class user:
         else:
             self.in_db = True
 
-    def __load( self, username ):
+    def __load( self, username, match_case ):
+        filter_template = "(&(objectClass=inetOrgPerson)(uid:{0}:={1}))"
+        filter_case = 'caseExactMatch' if match_case else 'caseIgnoreMatch'
         info =  get_conn().search_st( "ou=users,o=sr",
                                   ldap.SCOPE_ONELEVEL,
-                                  filterstr="(&(objectClass=inetOrgPerson)(uid=%s))" % (username) )
+                                  filterstr= filter_template.format(filter_case, username) )
 
         if len(info) == 1:
             self.dn = info[0][0]

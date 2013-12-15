@@ -86,7 +86,7 @@ class group:
         else:
             return False
 
-    def user_add(self,userl):
+    def user_add(self, userl, require_case_match = False):
         """Add a user to the group"""
         if isinstance(userl, users.user):
             userl = [userl.username]
@@ -100,7 +100,7 @@ class group:
             if isinstance(user, users.user):
                 u = user
             else:
-                u = users.user(user)
+                u = users.user(user, require_case_match)
 
             if not u.in_db:
                 failed.append(user)
