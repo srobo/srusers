@@ -119,10 +119,15 @@ class group:
         elif type(userl) is not types.ListType:
             userl = [userl]
 
-        for user in userl:
+        not_members = []
+        for user in set(userl):
             if user in self.members:
                 self.members.remove(user)
                 self.removed_users.append(user)
+            else:
+                not_members.append(user)
+
+        return not_members
 
     def rm(self):
         """Delete the group"""
