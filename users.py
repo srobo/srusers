@@ -2,6 +2,7 @@ import ldap, types
 import sr_ldap
 import string
 import random, hashlib, base64, re
+from unidecode import unidecode
 from sr_ldap import get_conn
 import groups
 
@@ -41,7 +42,9 @@ def new_username(college_id, first_name, last_name, tmpset = []):
     else:
         college_tla = college_id
 
-    prefix = "%s_%s%s" % (college_tla, first_name[0], last_name[0])
+    first = unidecode(first_name[0])
+    last = unidecode(last_name[0])
+    prefix = "%s_%s%s" % (college_tla, first[0], last[0])
     prefix = prefix.lower()
 
     def c(i):
