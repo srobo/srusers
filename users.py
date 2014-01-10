@@ -56,6 +56,15 @@ def new_username(college_id, first_name, last_name, tmpset = []):
 
     return u.username
 
+def _load(username, match_case):
+    filter_template = "(&(objectClass=inetOrgPerson)(uid:{0}:={1}))"
+    filter_case = 'caseExactMatch' if match_case else 'caseIgnoreMatch'
+    info =  get_conn().search_st( "ou=users,o=sr",
+                              ldap.SCOPE_ONELEVEL,
+                              filterstr = filter_template.format(filter_case, username) )
+
+    return info
+
 class user:
     """A user"""
     map = { "cname" : "cn",
@@ -93,6 +102,11 @@ class user:
         userids = [item[1]['uid'][0] for item in result]
         return userids
 
+    @classmethod
+    def exists(cls, username):
+        info = _load(username)
+        return info != None and len(info) == 1
+
     def __init__( self, username, match_case = False ):
         """Initialise the user object"""
         sr_ldap.bind()
@@ -123,11 +137,7 @@ class user:
             self.in_db = True
 
     def __load( self, username, match_case ):
-        filter_template = "(&(objectClass=inetOrgPerson)(uid:{0}:={1}))"
-        filter_case = 'caseExactMatch' if match_case else 'caseIgnoreMatch'
-        info =  get_conn().search_st( "ou=users,o=sr",
-                                  ldap.SCOPE_ONELEVEL,
-                                  filterstr= filter_template.format(filter_case, username) )
+        info = _load( username, match_case )
 
         if len(info) == 1:
             self.dn = info[0][0]
