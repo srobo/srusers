@@ -19,7 +19,15 @@ def default_pass():
     except NoOptionError:
         sys.stderr.write("LDAP Password:")
         passwd = getpass.getpass("")
-    conn_str = "cn=%s,o=sr" % config.get('ldap', 'username')
+
+    # Annoyance: all SR users are under the ou=users subtree, except for
+    # the Manager entity, which isn't a user. Work around this corner case.
+    username = config.get('ldap', 'username')
+    if username == "Manager":
+        conn_str = "cn={0},o=sr".format(username)
+    else:
+        conn_str = "uid={0},ou=users,o=sr".format(username)
+
     return (conn_str, passwd)
 
 user_callback = default_pass
