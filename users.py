@@ -106,8 +106,8 @@ class user:
         return userids
 
     @classmethod
-    def exists(cls, username):
-        info = _load(username)
+    def exists(cls, username, match_case=False):
+        info = _load(username, match_case)
         return info != None and len(info) == 1
 
     def __init__( self, username, match_case = False ):
