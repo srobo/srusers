@@ -1,7 +1,11 @@
-import ldap, types
+
+import grp
+import ldap
+import types
+
 import sr_ldap
 from sr_ldap import get_conn
-import users, grp
+import users
 
 TEAM_PREFIX = 'team-'
 COLLEGE_PREFIX = 'college-'

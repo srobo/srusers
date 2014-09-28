@@ -1,8 +1,14 @@
-import ldap, types
-import sr_ldap
+
+import base64
+import hashlib
+import ldap
+import re
+import random
 import string
-import random, hashlib, base64, re
+import types
 from unidecode import unidecode
+
+import sr_ldap
 from sr_ldap import get_conn
 import groups
 

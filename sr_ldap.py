@@ -1,6 +1,10 @@
-import ldap, sys, getpass
+
 from ConfigParser import NoOptionError
-from config import config
+import getpass
+import ldap
+import sys
+
+from .config import config
 
 conn = None
 bound = False
