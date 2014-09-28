@@ -8,9 +8,9 @@ import string
 import types
 from unidecode import unidecode
 
+from . import constants
 import sr_ldap
 from sr_ldap import get_conn
-import groups
 
 def GenPasswd():
     chars = string.letters + string.digits
@@ -43,8 +43,8 @@ def new_username(college_id, first_name, last_name, tmpset = []):
     @param last_name: the last name of the user
     @param tmpset: a collection of user names that are not valid
     """
-    if college_id.startswith(groups.COLLEGE_PREFIX):
-        college_tla = college_id[len(groups.COLLEGE_PREFIX):]
+    if college_id.startswith(constants.COLLEGE_PREFIX):
+        college_tla = college_id[len(constants.COLLEGE_PREFIX):]
     else:
         college_tla = college_id
 
@@ -339,6 +339,9 @@ class user:
 
     def set_lang(self, lang):
         "Set the language of the user"
+
+        # Delayed import to avoid circular dependency
+        from . import groups
 
         # Remove ourself from any language group we're already in
         g = self.groups()

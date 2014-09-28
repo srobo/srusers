@@ -1,6 +1,8 @@
 
+from constants import TEAM_PREFIX, COLLEGE_PREFIX
+
 import groups
-from groups import group, TEAM_PREFIX, COLLEGE_PREFIX
+from groups import group
 
 import users
 from users import user, new_username

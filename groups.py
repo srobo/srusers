@@ -7,9 +7,6 @@ import sr_ldap
 from sr_ldap import get_conn
 import users
 
-TEAM_PREFIX = 'team-'
-COLLEGE_PREFIX = 'college-'
-
 # Get a list of all groups
 def list(name_filter = None):
     sr_ldap.bind()
