@@ -1,11 +1,9 @@
 
 import grp
 import ldap
-import types
 
-import sr_ldap
-from sr_ldap import get_conn
-import users
+from . import sr_ldap
+from .sr_ldap import get_conn
 
 # Get a list of all groups
 def list(name_filter = None):
@@ -74,7 +72,7 @@ class group:
             self.dn = info[0][0]
             self.gid = int( info[0][1]["gidNumber"][0] )
 
-            if info[0][1].has_key("description"):
+            if "description" in info[0][1]:
                 self.desc = info[0][1]["description"][0]
             else:
                 self.desc = None
@@ -91,8 +89,12 @@ class group:
         """Add a user to the group"""
         if isinstance(userl, users.user):
             userl = [userl.username]
-        elif type(userl) is not types.ListType:
+        # Can't just use "list" as we've got our own function of that name above
+        elif type(userl) is not type([]):
             userl = [userl]
+
+        # Delayed import to avoid circular imports not resolving
+        from . import users
 
         failed = []
         for user in userl:
@@ -117,7 +119,8 @@ class group:
         """Remove a user from a group"""
         if userl.__class__ is users.user:
             userl = [userl.username]
-        elif type(userl) is not types.ListType:
+        # Can't just use "list" as we've got our own function of that name above
+        elif type(userl) is not type([]):
             userl = [userl]
 
         not_members = []

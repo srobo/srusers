@@ -5,17 +5,16 @@ import ldap
 import re
 import random
 import string
-import types
 from unidecode import unidecode
 
 from . import constants
-import sr_ldap
-from sr_ldap import get_conn
+from . import sr_ldap
+from .sr_ldap import get_conn
 
 def GenPasswd():
     chars = string.letters + string.digits
     newpasswd = ""
-    for i in xrange(8):
+    for i in range(8):
         newpasswd = newpasswd + random.choice(chars)
     return newpasswd
 
@@ -91,7 +90,7 @@ class user:
     @classmethod
     def search(cls, **kwargs):
         parts = []
-        for common, prop in cls.map.iteritems():
+        for common, prop in cls.map.items():
             if common in kwargs:
                 parts.append("({0}={1})".format(prop, kwargs[common]))
 
@@ -246,7 +245,8 @@ class user:
             if self.map[name] in self.props.keys():
                 pval = self.props[ self.map[name] ]
 
-                if type(pval) is types.ListType:
+                # Can't just use "list" as we've got our own function of that name above
+                if type(pval) is type([]):
                     pval = pval[0]
 
                 return pval
@@ -268,7 +268,7 @@ class user:
 
         self.props
 
-        for human, z in p.iteritems():
+        for human, z in p.items():
             if first:
                 first = False
             else:
@@ -276,7 +276,8 @@ class user:
 
             if z in self.props.keys():
                 pval = self.props[z]
-                if type(pval) is types.ListType:
+                # Can't just use "list" as we've got our own function of that name above
+                if type(pval) is type([]):
                     pval = pval[0]
             else:
                 pval = "None"
@@ -305,7 +306,7 @@ class user:
 
             try:
                 get_conn().bind_s( self.dn, p )
-            except ldap.INVALID_CREDENTIALS, ldap.LDAPError:
+            except (ldap.INVALID_CREDENTIALS, ldap.LDAPError):
                 return False
 
             return True

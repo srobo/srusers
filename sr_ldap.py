@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from ConfigParser import NoOptionError
 import getpass
@@ -56,7 +57,7 @@ def bind():
         try:
             conn.simple_bind_s( info[0], info[1] )
         except ldap.INVALID_CREDENTIALS:
-            print "Incorrect password"
+            print("Incorrect password")
             return False
 
         bound = True

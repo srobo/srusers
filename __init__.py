@@ -1,11 +1,11 @@
 
-from constants import TEAM_PREFIX, COLLEGE_PREFIX
+from .constants import TEAM_PREFIX, COLLEGE_PREFIX
 
-import groups
-from groups import group
+from . import groups
+from .groups import group
 
-import users
-from users import user, new_username
+from . import users
+from .users import user, new_username
 
-import sr_ldap
-from sr_ldap import set_userinfo
+from . import sr_ldap
+from .sr_ldap import set_userinfo
