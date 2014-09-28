@@ -123,7 +123,7 @@ class user:
 
             self.props = { "uid" : username,
                            "objectClass" : ['inetOrgPerson', 'uidObject', 'posixAccount'],
-                           "uidNumber" : str(self.__get_new_uidNumber()),
+                           "uidNumber" : str(uidNumber),
                            "gidNumber" : "1999",
                            "homeDirectory" : "/home/%s" % ( username ),
                            "userPassword" : encode_pass( self.init_passwd ),
