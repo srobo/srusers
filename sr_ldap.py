@@ -1,6 +1,10 @@
 from __future__ import print_function
 
-from ConfigParser import NoOptionError
+try:
+    from ConfigParser import NoOptionError
+except ImportError:
+    from configparser import NoOptionError
+
 import getpass
 import ldap
 import sys
