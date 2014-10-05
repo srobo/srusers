@@ -87,14 +87,14 @@ class group:
 
     def user_add(self, userl, require_case_match = False):
         """Add a user to the group"""
+        # Delayed import to avoid circular imports not resolving
+        from . import users
+
         if isinstance(userl, users.user):
             userl = [userl.username]
         # Can't just use "list" as we've got our own function of that name above
         elif type(userl) is not type([]):
             userl = [userl]
-
-        # Delayed import to avoid circular imports not resolving
-        from . import users
 
         failed = []
         for user in userl:
@@ -117,6 +117,9 @@ class group:
 
     def user_rm(self,userl):
         """Remove a user from a group"""
+        # Delayed import to avoid circular imports not resolving
+        from . import users
+
         if userl.__class__ is users.user:
             userl = [userl.username]
         # Can't just use "list" as we've got our own function of that name above
