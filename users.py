@@ -306,7 +306,9 @@ class user:
 
             try:
                 get_conn().bind_s( self.dn, p )
-            except (ldap.INVALID_CREDENTIALS, ldap.LDAPError):
+            except ldap.LDAPError:
+                # Most likely are INVALID_CREDENTIALS and UNWILLING_TO_PERFORM
+                # The latter occurs for empty passwords, which we don't allow
                 return False
 
             return True
