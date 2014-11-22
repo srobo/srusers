@@ -33,6 +33,16 @@ def list():
 
     return users
 
+def ensure_unicode(string):
+    if isinstance(string, str):
+        return string.decode('utf-8')
+    return string
+
+def ensure_str(string):
+    if isinstance(string, unicode):
+        return string.encode('utf-8')
+    return string
+
 def new_username(college_id, first_name, last_name, tmpset = []):
     """
     Creates a new unique username, taking into account any existing names
@@ -47,8 +57,19 @@ def new_username(college_id, first_name, last_name, tmpset = []):
     else:
         college_tla = college_id
 
-    first = unidecode(first_name[0])
-    last = unidecode(last_name[0])
+    def first_letter(name):
+        # unidecode expects a ``unicode`` not a ``str`` otherwise weird results occur
+        uname = ensure_unicode(name)
+        # decode the whole name -- not all characters have a conversion,
+        # by using the whole name the chances are that one of them will be valid
+        dname = unidecode(uname)
+        dfirst = dname[0]
+        # the rest of the LDAP APIs expect a ``str``
+        sfirst = dfirst.encode('utf-8')
+        return sfirst
+
+    first = first_letter(first_name)
+    last = first_letter(last_name)
     prefix = "%s_%s%s" % (college_tla, first[0], last[0])
     prefix = prefix.lower()
 
@@ -65,6 +86,7 @@ def new_username(college_id, first_name, last_name, tmpset = []):
     return u.username
 
 def _load(username, match_case):
+    username = ensure_str(username)
     filter_template = "(&(objectClass=inetOrgPerson)(uid:{0}:={1}))"
     filter_case = 'caseExactMatch' if match_case else 'caseIgnoreMatch'
     info =  get_conn().search_st( "ou=users,o=sr",
@@ -92,7 +114,9 @@ class user:
         parts = []
         for common, prop in cls.map.items():
             if common in kwargs:
-                parts.append("({0}={1})".format(prop, kwargs[common]))
+                val = kwargs[common]
+                sval = ensure_str(val)
+                parts.append("({0}={1})".format(prop, sval))
 
         if len(parts) == 0:
             return None
@@ -121,6 +145,7 @@ class user:
 
         self.changed_props = []
 
+        username = ensure_str(username)
         if not self.__load( username, match_case ):
             uidNumber = self.__get_new_uidNumber()
 
@@ -177,7 +202,7 @@ class user:
 
     def __setattr__(self, name, val):
         if name in self.map.keys():
-            self.props[ self.map[name] ] = [val]
+            self.props[ self.map[name] ] = [ensure_str(val)]
 
             if self.map[name] not in self.changed_props:
                 self.changed_props.append( self.map[name] )
