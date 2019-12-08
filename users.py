@@ -17,7 +17,7 @@ except NameError:
     unicode = str
 
 def GenPasswd():
-    chars = string.letters + string.digits
+    chars = string.ascii_letters + string.digits
     newpasswd = ""
     for i in range(8):
         newpasswd = newpasswd + random.choice(chars)
