@@ -33,12 +33,12 @@ def list():
 
     return users
 
-def ensure_unicode(string):
-    if isinstance(string, str):
+def ensure_text(string):
+    if isinstance(string, bytes):
         return string.decode('utf-8')
     return string
 
-def ensure_str(string):
+def ensure_bytes(string):
     if isinstance(string, unicode):
         return string.encode('utf-8')
     return string
@@ -59,7 +59,7 @@ def new_username(college_id, first_name, last_name, tmpset = []):
 
     def first_letter(name):
         # unidecode expects a ``unicode`` not a ``str`` otherwise weird results occur
-        uname = ensure_unicode(name)
+        uname = ensure_text(name)
         # decode the whole name -- not all characters have a conversion,
         # by using the whole name the chances are that one of them will be valid
         dname = unidecode(uname)
@@ -86,7 +86,7 @@ def new_username(college_id, first_name, last_name, tmpset = []):
     return u.username
 
 def _load(username, match_case):
-    username = ensure_str(username)
+    username = ensure_bytes(username)
     filter_template = "(&(objectClass=inetOrgPerson)(uid:{0}:={1}))"
     filter_case = 'caseExactMatch' if match_case else 'caseIgnoreMatch'
     info =  get_conn().search_st( "ou=users,o=sr",
@@ -115,7 +115,7 @@ class user:
         for common, prop in cls.map.items():
             if common in kwargs:
                 val = kwargs[common]
-                sval = ensure_str(val)
+                sval = ensure_bytes(val)
                 parts.append("({0}={1})".format(prop, sval))
 
         if len(parts) == 0:
@@ -145,7 +145,7 @@ class user:
 
         self.changed_props = []
 
-        username = ensure_str(username)
+        username = ensure_bytes(username)
         if not self.__load( username, match_case ):
             uidNumber = self.__get_new_uidNumber()
 
@@ -202,7 +202,7 @@ class user:
 
     def __setattr__(self, name, val):
         if name in self.map.keys():
-            self.props[ self.map[name] ] = [ensure_str(val)]
+            self.props[ self.map[name] ] = [ensure_bytes(val)]
 
             if self.map[name] not in self.changed_props:
                 self.changed_props.append( self.map[name] )
