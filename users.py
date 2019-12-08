@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 
 import base64
 import hashlib
@@ -20,7 +21,7 @@ def GenPasswd():
 
 def encode_pass(p):
     h = hashlib.sha1(ensure_bytes(p))
-    return "{SHA}%s" %( base64.b64encode( h.digest() ) )
+    return '{SHA}%s' %( base64.b64encode( h.digest() ).decode('utf-8') )
 
 def list():
     sr_ldap.bind()
@@ -54,13 +55,11 @@ def new_username(college_id, first_name, last_name, tmpset = []):
         # by using the whole name the chances are that one of them will be valid
         dname = unidecode(uname)
         dfirst = dname[0]
-        # the rest of the LDAP APIs expect a ``str``
-        sfirst = dfirst.encode('utf-8')
-        return sfirst
+        return dfirst
 
     first = first_letter(first_name)
     last = first_letter(last_name)
-    prefix = "%s_%s%s" % (college_tla, first[0], last[0])
+    prefix = "%s_%s%s" % (ensure_text(college_tla), first[0], last[0])
     prefix = prefix.lower()
 
     def c(i):
@@ -76,7 +75,7 @@ def new_username(college_id, first_name, last_name, tmpset = []):
     return u.username
 
 def _load(username, match_case):
-    username = ensure_bytes(username)
+    username = ensure_text(username)
     filter_template = "(&(objectClass=inetOrgPerson)(uid:{0}:={1}))"
     filter_case = 'caseExactMatch' if match_case else 'caseIgnoreMatch'
     info =  get_conn().search_st( "ou=users,o=sr",
@@ -105,7 +104,7 @@ class user:
         for common, prop in cls.map.items():
             if common in kwargs:
                 val = kwargs[common]
-                sval = ensure_bytes(val)
+                sval = ensure_text(val)
                 parts.append("({0}={1})".format(prop, sval))
 
         if len(parts) == 0:
@@ -121,7 +120,7 @@ class user:
                                       filterstr = filter_str,
                                       attrlist = ["uid"])
 
-        userids = [item[1]['uid'][0] for item in result]
+        userids = [item[1][u'uid'][0] for item in result]
         return userids
 
     @classmethod
@@ -135,7 +134,7 @@ class user:
 
         self.changed_props = []
 
-        username = ensure_bytes(username)
+        username = ensure_text(username)
         if not self.__load( username, match_case ):
             uidNumber = self.__get_new_uidNumber()
 
@@ -143,7 +142,7 @@ class user:
 
             self.props = { "uid" : username,
                            "objectClass" : ['inetOrgPerson', 'uidObject', 'posixAccount'],
-                           "uidNumber" : str(uidNumber),
+                           "uidNumber" : ensure_text(str(uidNumber)),
                            "gidNumber" : "1999",
                            "homeDirectory" : "/home/%s" % ( username ),
                            "userPassword" : encode_pass( self.init_passwd ),
@@ -164,7 +163,7 @@ class user:
 
         if len(info) == 1:
             self.dn = info[0][0]
-            self.props = info[0][1]
+            self.props = {k: ensure_text(v) for k, v in info[0][1].items()}
             return True
         else:
             return False
@@ -188,7 +187,7 @@ class user:
         return uid
 
     def __set_prop(self, pname, val):
-        self.props[pname] = val
+        self.props[pname] = ensure_text(val)
 
     def __setattr__(self, name, val):
         if name in self.map.keys():
@@ -222,7 +221,7 @@ class user:
         """Save the user as a new item in the database"""
         modlist = []
         for prop in self.props:
-            modlist.append( (prop, self.props[prop]) )
+            modlist.append( (prop, ensure_bytes(self.props[prop])) )
 
         get_conn().add_s( self.dn, modlist )
 
@@ -235,7 +234,7 @@ class user:
         """Update the user in the database"""
         modlist = []
         for prop in self.changed_props:
-            modlist.append( (ldap.MOD_REPLACE, prop, self.props[prop]) )
+            modlist.append( (ldap.MOD_REPLACE, prop, ensure_bytes(self.props[prop])) )
 
         get_conn().modify_s( self.dn, modlist )
         self.changed_props = []
@@ -264,7 +263,7 @@ class user:
                 if type(pval) is type([]):
                     pval = pval[0]
 
-                return pval
+                return ensure_text(pval)
             else:
                 return None
 
@@ -311,7 +310,7 @@ class user:
                                 filterstr=filter,
                                 attrlist=["cn"] )
 
-        lgroups = [x[1]["cn"][0] for x in res]
+        lgroups = ensure_text([x[1]["cn"][0] for x in res])
 
         return lgroups
 
@@ -320,7 +319,7 @@ class user:
             sr_ldap.unbind()
 
             try:
-                get_conn().bind_s( self.dn, p )
+                get_conn().bind_s( self.dn, ensure_text(p) )
             except ldap.LDAPError:
                 # Most likely are INVALID_CREDENTIALS and UNWILLING_TO_PERFORM
                 # The latter occurs for empty passwords, which we don't allow
@@ -329,7 +328,7 @@ class user:
             return True
 
     def __mod_passwd(self,p):
-        modlist = [(ldap.MOD_REPLACE, "userPassword", encode_pass( p ) )]
+        modlist = [(ldap.MOD_REPLACE, "userPassword", ensure_bytes(encode_pass( p )) )]
         get_conn().modify_s( self.dn, modlist )
         return True
 
@@ -341,7 +340,7 @@ class user:
             # Modify operation on the db (don't know old pass)
             return self.__mod_passwd(new)
         else:
-            get_conn().passwd_s( self.dn, old, new )
+            get_conn().passwd_s( self.dn, ensure_bytes(old), ensure_bytes(new) )
             return True
 
     def get_lang(self):
