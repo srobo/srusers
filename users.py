@@ -11,6 +11,11 @@ from . import constants
 from . import sr_ldap
 from .sr_ldap import get_conn
 
+try:
+    unicode
+except NameError:
+    unicode = str
+
 def GenPasswd():
     chars = string.letters + string.digits
     newpasswd = ""
