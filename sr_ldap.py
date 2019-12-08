@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 try:
     from ConfigParser import NoOptionError
@@ -36,7 +36,7 @@ def ensure_bytes(data):
 def connect():
     global conn
     conn_str = "ldap://%s/" % config.get('ldap', 'host')
-    conn = ldap.initialize(conn_str)
+    conn = ldap.initialize(conn_str, bytes_mode=False)
 
 if conn == None:
     connect()
@@ -56,7 +56,7 @@ def default_pass():
     else:
         conn_str = "uid={0},ou=users,o=sr".format(username)
 
-    return (conn_str, passwd)
+    return (conn_str, ensure_text(passwd))
 
 user_callback = default_pass
 

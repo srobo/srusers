@@ -1,9 +1,10 @@
+from __future__ import unicode_literals
 
 import grp
 import ldap
 
 from . import sr_ldap
-from .sr_ldap import get_conn
+from .sr_ldap import ensure_bytes, ensure_text, get_conn
 
 # Get a list of all groups
 def list(name_filter = None):
@@ -17,7 +18,7 @@ def list(name_filter = None):
                                   ldap.SCOPE_ONELEVEL,
                                   filterstr=filterstr )
 
-    groups = [x[1]["cn"][0] for x in g_res]
+    groups = ensure_text([x[1]["cn"][0] for x in g_res])
 
     return groups
 
@@ -39,7 +40,7 @@ class group:
         Args: name = the name of the group"""
         sr_ldap.bind()
 
-        self.name = name
+        self.name = ensure_text(name)
 
         #List of new users
         self.new_users = []
@@ -53,13 +54,13 @@ class group:
         if self.name == "shell-users":
             self.full_user_dn = True
 
-        if not self.__load(name):
+        if not self.__load(self.name):
             #Have to create new
             self.gid = self.__get_new_gidNumber()
             self.in_db = False
             self.members = []
-            self.dn = "cn=%s,ou=groups,o=sr" % (name)
-            self.desc = "%s group" % name
+            self.dn = "cn=%s,ou=groups,o=sr" % (self.name)
+            self.desc = "%s group" % self.name
         else:
             self.in_db = True
 
@@ -73,12 +74,12 @@ class group:
             self.gid = int( info[0][1]["gidNumber"][0] )
 
             if "description" in info[0][1]:
-                self.desc = info[0][1]["description"][0]
+                self.desc = ensure_text(info[0][1]["description"][0])
             else:
                 self.desc = None
 
             if "memberUid" in info[0][1].keys():
-                self.members = self.__unames_from_dn( info[0][1]["memberUid"] )
+                self.members = ensure_text(self.__unames_from_dn( info[0][1]["memberUid"] ))
             else:
                 self.members = []
             return True
@@ -153,13 +154,13 @@ class group:
             return self.__save_new()
 
     def __save_new(self):
-        modlist = [ ("objectClass", "posixGroup"),
-                    ("cn", self.name),
-                    ("gidNumber", str(self.gid)),
-                    ("description", self.desc) ]
+        modlist = [ ("objectClass", b"posixGroup"),
+                    ("cn", ensure_bytes(self.name)),
+                    ("gidNumber", ensure_bytes(str(self.gid))),
+                    ("description", ensure_bytes(self.desc)) ]
 
         if len(self.members) > 0:
-            modlist.append( ("memberUid", self.__unames_to_dn( self.members ) ) )
+            modlist.append( ("memberUid", ensure_bytes(self.__unames_to_dn( self.members ))) )
 
         get_conn().add_s( self.dn, modlist )
 
@@ -171,13 +172,13 @@ class group:
     def __update(self):
         modlist = [ ( ldap.MOD_REPLACE,
                       "memberUid",
-                      self.__unames_to_dn( self.members ) ),
+                      ensure_bytes(self.__unames_to_dn( self.members )) ),
                     ( ldap.MOD_REPLACE,
                       "description",
-                      self.desc ),
+                      ensure_bytes(self.desc) ),
                     ( ldap.MOD_REPLACE,
                       "gidNumber",
-                      str(self.gid) ) ]
+                      ensure_bytes(str(self.gid)) ) ]
 
         get_conn().modify_s( self.dn, modlist )
 
