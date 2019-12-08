@@ -9,12 +9,7 @@ from unidecode import unidecode
 
 from . import constants
 from . import sr_ldap
-from .sr_ldap import get_conn
-
-try:
-    unicode
-except NameError:
-    unicode = str
+from .sr_ldap import ensure_bytes, ensure_text, get_conn
 
 def GenPasswd():
     chars = string.ascii_letters + string.digits
@@ -37,16 +32,6 @@ def list():
     users = [x[1]["uid"][0] for x in u_res]
 
     return users
-
-def ensure_text(string):
-    if isinstance(string, bytes):
-        return string.decode('utf-8')
-    return string
-
-def ensure_bytes(string):
-    if isinstance(string, unicode):
-        return string.encode('utf-8')
-    return string
 
 def new_username(college_id, first_name, last_name, tmpset = []):
     """

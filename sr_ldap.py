@@ -11,8 +11,27 @@ import sys
 
 from .config import config
 
+try:
+    unicode
+except NameError:
+    unicode = str
+
 conn = None
 bound = False
+
+def ensure_text(data):
+    if isinstance(data, bytes):
+        return data.decode('utf-8')
+    if isinstance(data, list):
+        return [ensure_text(x) for x in data]
+    return data
+
+def ensure_bytes(data):
+    if isinstance(data, unicode):
+        return data.encode('utf-8')
+    if isinstance(data, list):
+        return [ensure_bytes(x) for x in data]
+    return data
 
 def connect():
     global conn
