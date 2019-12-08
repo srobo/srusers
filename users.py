@@ -30,7 +30,7 @@ def list():
                                   ldap.SCOPE_ONELEVEL,
                                   filterstr = "(objectClass=inetOrgPerson)",
                                   attrlist = ["uid"] )
-    users = [x[1]["uid"][0] for x in u_res]
+    users = ensure_text([x[1]["uid"][0] for x in u_res])
 
     return users
 
@@ -120,7 +120,7 @@ class user:
                                       filterstr = filter_str,
                                       attrlist = ["uid"])
 
-        userids = [item[1][u'uid'][0] for item in result]
+        userids = ensure_text([item[1][u'uid'][0] for item in result])
         return userids
 
     @classmethod
