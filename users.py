@@ -24,7 +24,7 @@ def GenPasswd():
     return newpasswd
 
 def encode_pass(p):
-    h = hashlib.sha1(p)
+    h = hashlib.sha1(ensure_bytes(p))
     return "{SHA}%s" %( base64.b64encode( h.digest() ) )
 
 def list():
